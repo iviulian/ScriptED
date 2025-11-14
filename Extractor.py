@@ -43,7 +43,6 @@ def download_logic(url, cale_fisier):
 
 
 
-
 def procesare_tabele_excel(path_pdf, director_output):
     
     # Aici scot tabelele si le pun in excel pe sheet-uri separate
@@ -52,15 +51,14 @@ def procesare_tabele_excel(path_pdf, director_output):
     os.makedirs(director_output, exist_ok=True)
     
     try:
-        # Incerc prima data cu flavor stream ca e mai bun pt tabele fara linii
+        #Incerc prima data cu flavor stream ca e mai bun pt tabele fara linii
         tabele_gasite = camelot.read_pdf(path_pdf, pages='all', flavor='stream')
         
         
         
-        
-        # Verific daca am gasit ceva cu stream
+        #Verific daca am gasit ceva cu stream
         if tabele_gasite.n == 0:
-             # Daca nu a mers stream incerc lattice pt tabele cu linii
+             #Daca nu a mers stream incerc lattice pt tabele cu linii
              tabele_gasite = camelot.read_pdf(path_pdf, pages='all', flavor='lattice')
              if tabele_gasite.n == 0:
                   print("Nu au fost gasite tabele utilizabile.")
@@ -81,21 +79,13 @@ def procesare_tabele_excel(path_pdf, director_output):
             # Iterez prin toate tabelele gasite
             for i, tabel_curent in enumerate(tabele_gasite):
                 df = tabel_curent.df
-                
-
-                # Fac putin clean la date scot randurile goale
-                df.dropna(how='all', inplace=True)
-                
-                # Scot spatiile albe daca e string
-                df =df.apply(lambda x: x.str.strip() if x.dtype=="object" else x)
-                
-                
-                nume_sheet="Tabel "+str(i+1)+" (Pag. "+str(tabel_curent.page)+")"     # Fac numele la sheet din index si pagina
-                             
+                df.dropna(how='all', inplace=True) # fac putin clean la date scot randurile goale
+                df =df.apply(lambda x: x.str.strip() if x.dtype=="object" else x)   #scot spatiile albe daca e string
+                nume_sheet="Tabel "+str(i+1)+" (Pag. "+str(tabel_curent.page)+")"   # Fac numele la sheet din index si pagina
                 df.to_excel(writer, sheet_name=nume_sheet, index=False, header=False)
                 print("Salvare in foaia:   " + nume_sheet)
 
-        print("\nConsolidare finalizata! toate tabelele sunt in: " + fisier_final) 
+        print("\nToate tabelele sunt in: " + fisier_final) 
 
     except Exception as e: print("\nEroare in timpul consolidarii: " + str(e))
 
